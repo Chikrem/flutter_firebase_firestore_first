@@ -17,7 +17,8 @@ class _HomeScreenState extends State<HomeScreen> {
     // Listin(id: "L002", name: "Feira de Novembro"),
   ];
 
-  FirebaseFirestore firestore = FirebaseFirestore.instance; // Instância de Firestore para ser usada na classe
+  FirebaseFirestore firestore = FirebaseFirestore
+      .instance; // Instância de Firestore para ser usada na classe
 
   @override
   void initState() {
@@ -46,24 +47,32 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             )
           : RefreshIndicator(
-            onRefresh: () {
-              return refresh();
-            },
-            child: ListView(
+              onRefresh: () {
+                return refresh();
+              },
+              child: ListView(
                 children: List.generate(
                   listListins.length,
                   (index) {
                     Listin model = listListins[index];
                     return Dismissible(
+                      // Arrastar para o lado
                       key: ValueKey<Listin>(model),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                          color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 8),
+                          child: const Icon(Icons.delete, color: Colors.white,)),
                       onDismissed: (direction) {
                         remove(model);
                       },
                       child: ListTile(
-                        onTap: () {   // Acessar
-                          
+                        onTap: () {
+                          // Acessar
                         },
-                        onLongPress: () {    // Editar
+                        onLongPress: () {
+                          // Editar
                           showFormModal(model: model);
                         },
                         leading: const Icon(Icons.list_alt_rounded),
@@ -74,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
               ),
-          ),
+            ),
     );
   }
 
@@ -87,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Controlador do campo que receberá o nome do Listin
     TextEditingController nameController = TextEditingController();
 
-    if (model != null){
+    if (model != null) {
       title = "Editando ${model.name}";
       nameController.text = model.name;
     }
@@ -133,13 +142,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   ElevatedButton(
                       onPressed: () {
-                        Listin listin = Listin(id: const Uuid().v1(), name: nameController.text); // Criar um tipo listin com os dados 
+                        Listin listin = Listin(
+                            id: const Uuid().v1(),
+                            name: nameController
+                                .text); // Criar um tipo listin com os dados
 
-                        if (model != null) {       // Usar ID do model para edição
+                        if (model != null) {
+                          // Usar ID do model para edição
                           listin.id = model.id;
                         }
 
-                        firestore.collection("listins").doc(listin.id).set(listin.toMap()); // Salvar no firestore
+                        firestore
+                            .collection("listins")
+                            .doc(listin.id)
+                            .set(listin.toMap()); // Salvar no firestore
                         refresh(); // Att lista
                         Navigator.pop(context);
                       },
@@ -153,25 +169,22 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  refresh() async{
+  refresh() async {
+    List<Listin> temp = [];
 
-      List<Listin> temp = [];
+    QuerySnapshot<Map<String, dynamic>> snapshot =
+        await firestore.collection("listins").get();
+    for (var doc in snapshot.docs) {
+      temp.add(Listin.fromMap(doc.data()));
+    }
 
-      QuerySnapshot <Map<String,dynamic>> snapshot = await firestore.collection("listins").get();
-      for (var doc in snapshot.docs) {
-        temp.add(Listin.fromMap(doc.data()));
-      }
-
-      setState(() {
-        listListins = temp;
-      });
-
+    setState(() {
+      listListins = temp;
+    });
   }
-  
+
   remove(Listin model) {
     firestore.collection('listins').doc(model.id).delete();
+    refresh();
   }
-
-
-
 }
