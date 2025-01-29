@@ -12,12 +12,18 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Listin> listListins = [
-    Listin(id: "L001", name: "Feira de Outubro"),
-    Listin(id: "L002", name: "Feira de Novembro"),
+  List<Listin> listListins = [
+    // Listin(id: "L001", name: "Feira de Outubro"),
+    // Listin(id: "L002", name: "Feira de Novembro"),
   ];
 
   FirebaseFirestore firestore = FirebaseFirestore.instance; // Instância de Firestore para ser usada na classe
+
+  @override
+  void initState() {
+    refresh();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       onPressed: () {
                         Listin listin = Listin(id: const Uuid().v1(), name: nameController.text); // Criar um tipo listin com os dados 
                         firestore.collection("listins").doc(listin.id).set(listin.toMap()); // Salvar no firestore
+                        refresh(); // Att lista
                         Navigator.pop(context);
                       },
                       child: Text(confirmationButton)),
@@ -118,4 +125,20 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+
+  refresh() async{
+
+      List<Listin> temp = [];
+
+      QuerySnapshot <Map<String,dynamic>> snapshot = await firestore.collection("listins").get();
+      for (var doc in snapshot.docs) {
+        temp.add(Listin.fromMap(doc.data()));
+      }
+
+      setState(() {
+        listListins = temp;
+      });
+
+  }
+
 }
