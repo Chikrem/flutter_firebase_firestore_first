@@ -1,11 +1,11 @@
 {
-    "name": "flutter_firebase_firestore_first",
-    "short_name": "flutter_firebase_firestore_first",
+    "name": "novo",
+    "short_name": "novo",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Projeto para o primeiro curso de Flutter com Cloud Firestore da Alura",
+    "description": "A new Flutter project.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
