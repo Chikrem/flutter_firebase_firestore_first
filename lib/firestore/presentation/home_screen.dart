@@ -55,6 +55,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   (index) {
                     Listin model = listListins[index];
                     return ListTile(
+                      onTap: () {   // Acessar
+                        
+                      },
+                      onLongPress: () {    // Editar
+                        showFormModal(model: model);
+                      },
                       leading: const Icon(Icons.list_alt_rounded),
                       title: Text(model.name),
                       subtitle: Text(model.id),
@@ -66,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  showFormModal() {
+  showFormModal({Listin? model}) {
     // Labels à serem mostradas no Modal
     String title = "Adicionar Listin";
     String confirmationButton = "Salvar";
@@ -74,6 +80,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Controlador do campo que receberá o nome do Listin
     TextEditingController nameController = TextEditingController();
+
+    if (model != null){
+      title = "Editando ${model.name}";
+      nameController.text = model.name;
+    }
 
     // Função do Flutter que mostra o modal na tela
     showModalBottomSheet(
@@ -117,6 +128,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ElevatedButton(
                       onPressed: () {
                         Listin listin = Listin(id: const Uuid().v1(), name: nameController.text); // Criar um tipo listin com os dados 
+
+                        if (model != null) {       // Usar ID do model para edição
+                          listin.id = model.id;
+                        }
+
                         firestore.collection("listins").doc(listin.id).set(listin.toMap()); // Salvar no firestore
                         refresh(); // Att lista
                         Navigator.pop(context);
@@ -145,5 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
 
   }
+
+
 
 }
