@@ -275,7 +275,8 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         .collection("listins")
         .doc(widget.listin.id)
         .collection("produtos")
-        .where("isComprado", isEqualTo: isComprado)
+        .where("isComprado",
+            isEqualTo: isComprado) // Where para filtrar dados Firestore
         .get();
 
     for (var doc in snapshot.docs) {
@@ -285,4 +286,18 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
 
     return temp;
   }
+
+  alterandoComprado(Produto produto) async{
+    produto.isComprado = !produto.isComprado;
+
+    await firestore
+        .collection("listins")
+        .doc(widget.listin.id)
+        .collection("produtos")
+        .doc(produto.id)
+        .update({"isComprado": produto.isComprado});
+        
+  refresh();
+  }
+
 }
