@@ -298,7 +298,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         .collection("produtos")
         .doc(produto.id)
         .update({"isComprado": produto.isComprado});
-
+        
   refresh();
   }
 
