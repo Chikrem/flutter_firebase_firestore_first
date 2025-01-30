@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../../firestore/models/listin.dart';
@@ -22,6 +24,8 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     Produto(id: "UUID", name: "Laranja", amount: 5, price: 1, isComprado: true),
   ];
 
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,8 +40,8 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         children: [
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: Column(
-              children: const [
+            child: const Column(
+              children: [
                 Text(
                   "R\$${0}",
                   style: TextStyle(fontSize: 42),
@@ -67,6 +71,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
               return ListTileProduto(
                 produto: produto,
                 isComprado: false,
+                showModal: showFormModal,
               );
             }),
           ),
@@ -88,6 +93,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
               return ListTileProduto(
                 produto: produto,
                 isComprado: true,
+                showModal: showFormModal,
               );
             }),
           ),
@@ -218,7 +224,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                         produto.price = double.parse(priceController.text);
                       }
 
-                      // TODO: Salvar no Firestore
+                      firestore.collection("listins").doc(widget.listin.id).collection("produtos").doc(produto.id).set(produto.toMap());
 
                       // Atualizar a lista
                       refresh();
