@@ -298,7 +298,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     );
   }
 
-  refresh() async {
+  refresh({QuerySnapshot<Map<String,dynamic>>? snapshot}) async {
     
     // List<Produto> tempPlanejados = await filtrarProdutos(false);
     // List<Produto> tempPegos = await filtrarProdutos(true);
@@ -310,7 +310,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     
     List<Produto> temp = [];
 
-    QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
+    snapshot ??= await firestore      // Se snapshot for nulo, executa a consulta
         .collection("listins")
         .doc(widget.listin.id)
         .collection("produtos")
@@ -363,7 +363,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     .orderBy(ordem.name, descending: isDecrescente)
     .snapshots()
     .listen((snapshot){
-      print("MUDANÇA");
+      refresh(snapshot: snapshot);
     });
   }
 }
