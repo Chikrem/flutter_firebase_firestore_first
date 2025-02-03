@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase_firestore_first/firestore_produtos/helpers/enum_order.dart';
@@ -29,11 +31,19 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
   OrdemProduto ordem = OrdemProduto.name; // Ordenação dos itens
   bool isDecrescente = false;
 
+  late StreamSubscription listener;
+
   @override
   void initState() {
     refresh();
     setupListeners(); // Abre observador de mudanças de estado do Firestore
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    listener.cancel();
+    super.dispose();
   }
 
   @override
@@ -282,7 +292,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                           .set(produto.toMap());
 
                       // Atualizar a lista
-                      refresh();
+                      // refresh();
 
                       // Fechar o Modal
                       Navigator.pop(context);
@@ -353,11 +363,11 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         .doc(produto.id)
         .update({"isComprado": produto.isComprado});
 
-    refresh();
+    // refresh();
   }
 
   setupListeners(){
-    firestore.collection("listins")
+    listener = firestore.collection("listins")
     .doc(widget.listin.id)
     .collection("produtos")
     .orderBy(ordem.name, descending: isDecrescente)
