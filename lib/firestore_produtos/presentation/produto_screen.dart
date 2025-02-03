@@ -64,9 +64,10 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                   ordem = value;
                   isDecrescente = false;
                 }
-                print(ordem.name);
-                print(isDecrescente);
+                // print(ordem.name);
+                // print(isDecrescente);
               });
+              refresh();
             },
           )
         ],
@@ -313,8 +314,8 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         .collection("listins")
         .doc(widget.listin.id)
         .collection("produtos")
-        .where("isComprado",
-            isEqualTo: isComprado) // Where para filtrar dados Firestore
+        //.where("isComprado",isEqualTo: isComprado) // Where para filtrar dados Firestore
+        .orderBy(ordem.name, descending: isDecrescente)  // Ordernar por 
         .get();
 
     for (var doc in snapshot.docs) {
