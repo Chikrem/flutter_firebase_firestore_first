@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase_firestore_first/firestore_produtos/presentation/produto_screen.dart';
+import 'package:uuid/uuid.dart';
 import '../models/listin.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -9,10 +12,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Listin> listListins = [
-    Listin(id: "L001", name: "Feira de Outubro"),
-    Listin(id: "L002", name: "Feira de Novembro"),
+  List<Listin> listListins = [
+    // Listin(id: "L001", name: "Feira de Outubro"),
+    // Listin(id: "L002", name: "Feira de Novembro"),
   ];
+
+  FirebaseFirestore firestore = FirebaseFirestore
+      .instance; // Instância de Firestore para ser usada na classe
+
+  @override
+  void initState() {
+    refresh();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,23 +46,49 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(fontSize: 18),
               ),
             )
-          : ListView(
-              children: List.generate(
-                listListins.length,
-                (index) {
-                  Listin model = listListins[index];
-                  return ListTile(
-                    leading: const Icon(Icons.list_alt_rounded),
-                    title: Text(model.name),
-                    subtitle: Text(model.id),
-                  );
-                },
+          : RefreshIndicator(
+              onRefresh: () {
+                return refresh();
+              },
+              child: ListView(
+                children: List.generate(
+                  listListins.length,
+                  (index) {
+                    Listin model = listListins[index];
+                    return Dismissible(
+                      // Arrastar para o lado
+                      key: ValueKey<Listin>(model),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                          color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 8),
+                          child: const Icon(Icons.delete, color: Colors.white,)),
+                      onDismissed: (direction) {
+                        remove(model);
+                      },
+                      child: ListTile(
+                        onTap: () {
+                          // Acessar
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => ProdutoScreen(listin: model)));
+                        },
+                        onLongPress: () {
+                          // Editar
+                          showFormModal(model: model);
+                        },
+                        leading: const Icon(Icons.list_alt_rounded),
+                        title: Text(model.name),
+                        // subtitle: Text(model.id),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
     );
   }
 
-  showFormModal() {
+  showFormModal({Listin? model}) {
     // Labels à serem mostradas no Modal
     String title = "Adicionar Listin";
     String confirmationButton = "Salvar";
@@ -58,6 +96,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Controlador do campo que receberá o nome do Listin
     TextEditingController nameController = TextEditingController();
+
+    if (model != null) {
+      title = "Editando ${model.name}";
+      nameController.text = model.name;
+    }
 
     // Função do Flutter que mostra o modal na tela
     showModalBottomSheet(
@@ -100,7 +143,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   ElevatedButton(
                       onPressed: () {
-                        //TODO: Implementar adição
+                        Listin listin = Listin(
+                            id: const Uuid().v1(),
+                            name: nameController
+                                .text); // Criar um tipo listin com os dados
+
+                        if (model != null) {
+                          // Usar ID do model para edição
+                          listin.id = model.id;
+                        }
+
+                        firestore
+                            .collection("listins")
+                            .doc(listin.id)
+                            .set(listin.toMap()); // Salvar no firestore
+                        refresh(); // Att lista
+                        Navigator.pop(context);
                       },
                       child: Text(confirmationButton)),
                 ],
@@ -110,5 +168,24 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+
+  refresh() async {
+    List<Listin> temp = [];
+
+    QuerySnapshot<Map<String, dynamic>> snapshot =
+        await firestore.collection("listins").get();
+    for (var doc in snapshot.docs) {
+      temp.add(Listin.fromMap(doc.data()));
+    }
+
+    setState(() {
+      listListins = temp;
+    });
+  }
+
+  remove(Listin model) {
+    firestore.collection('listins').doc(model.id).delete();
+    refresh();
   }
 }
