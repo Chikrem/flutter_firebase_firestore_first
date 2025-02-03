@@ -26,7 +26,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  OrdemProduto ordem = OrdemProduto.name;   // Ordenação dos itens
+  OrdemProduto ordem = OrdemProduto.name; // Ordenação dos itens
   bool isDecrescente = false;
 
   @override
@@ -41,15 +41,36 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
       appBar: AppBar(
         title: Text(widget.listin.name),
         actions: [
-          PopupMenuButton(itemBuilder: (context){
-            return const [
-              PopupMenuItem(value: OrdemProduto.name, child: Text("Ordenar por Nome"),),
-              PopupMenuItem(value: OrdemProduto.price,  child: Text("Ordenar por Preço")),
-              PopupMenuItem(value: OrdemProduto.amount, child: Text("Ordenar por Quantidade")),
-            ];
-          })
+          PopupMenuButton(
+            itemBuilder: (context) {
+              return const [
+                PopupMenuItem(
+                  value: OrdemProduto.name,
+                  child: Text("Ordenar por Nome"),
+                ),
+                PopupMenuItem(
+                    value: OrdemProduto.price,
+                    child: Text("Ordenar por Preço")),
+                PopupMenuItem(
+                    value: OrdemProduto.amount,
+                    child: Text("Ordenar por Quantidade")),
+              ];
+            },
+            onSelected: (value) {
+              setState(() {
+                if (ordem == value) {
+                  isDecrescente = !isDecrescente;
+                } else {
+                  ordem = value;
+                  isDecrescente = false;
+                }
+                print(ordem.name);
+                print(isDecrescente);
+              });
+            },
+          )
         ],
-        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showFormModal();
@@ -304,7 +325,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     return temp;
   }
 
-  alterandoComprado(Produto produto) async{
+  alterandoComprado(Produto produto) async {
     produto.isComprado = !produto.isComprado;
 
     await firestore
@@ -313,8 +334,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         .collection("produtos")
         .doc(produto.id)
         .update({"isComprado": produto.isComprado});
-        
-  refresh();
-  }
 
+    refresh();
+  }
 }
