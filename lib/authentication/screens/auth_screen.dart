@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_firebase_firestore_first/_core/mycolors.dart';
-import 'package:flutter_firebase_firestore_first/authentication/component/show_snackbar.dart';
+import 'package:flutter_firebase_firestore_first/_core/my_colors.dart';
+import 'package:flutter_firebase_firestore_first/authentication/components/show_snackbar.dart';
 import 'package:flutter_firebase_firestore_first/authentication/services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -185,28 +185,18 @@ class _AuthScreenState extends State<AuthScreen> {
     required String senha,
     required String nome,
   }) {
-    try {
-      authService.cadastrarUsuario(email: email, senha: senha, nome: nome).then(
-        (String? erro) {
-          if (erro == null) {
-            showSnackBar(
-              context: context,
-              mensagem: "Conta cadastrada com sucesso.",
-              isErro: false,
-            );
-            print("Conta cadastrada com sucesso.");
-          } else {
-            showSnackBar(context: context, mensagem: erro);
-            print("Erro ao cadastrar conta: $erro");
-          }
-        },
-      ).catchError((e) {
-        print("Erro inesperado ao cadastrar conta: $e");
-        showSnackBar(context: context, mensagem: "Erro inesperado ao cadastrar conta.");
-      });
-    } catch (e) {
-      print("Erro inesperado ao chamar cadastrarUsuario: $e");
-      showSnackBar(context: context, mensagem: "Erro inesperado ao chamar cadastrarUsuario.");
-    }
+    authService.cadastrarUsuario(email: email, senha: senha, nome: nome).then(
+      (String? erro) {
+        if (erro == null) {
+          showSnackBar(
+            context: context,
+            mensagem: "Conta cadastrada com sucesso.",
+            isErro: false,
+          );
+        } else {
+          showSnackBar(context: context, mensagem: erro);
+        }
+      },
+    );
   }
 }
