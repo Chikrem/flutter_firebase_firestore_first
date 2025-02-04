@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase_firestore_first/_core/mycolors.dart';
+import 'package:flutter_firebase_firestore_first/authentication/component/show_snackbar.dart';
 import 'package:flutter_firebase_firestore_first/authentication/services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -32,7 +33,7 @@ class _AuthScreenState extends State<AuthScreen> {
           child: SingleChildScrollView(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.greenAccent,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
               ),
               padding: const EdgeInsets.all(32),
@@ -91,43 +92,40 @@ class _AuthScreenState extends State<AuthScreen> {
                         return null;
                       },
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Visibility(
-                          visible: !isEntrando,
-                          child: Column(
-                            children: [
-                              TextFormField(
-                                controller: _confirmaController,
-                                obscureText: true,
-                                decoration: const InputDecoration(
-                                  label: Text("Confirme a senha"),
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.length < 4) {
-                                    return "Insira uma confirmação de senha válida.";
-                                  }
-                                  if (value != _senhaController.text) {
-                                    return "As senhas devem ser iguais.";
-                                  }
-                                  return null;
-                                },
+                    Visibility(
+                        visible: !isEntrando,
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: _confirmaController,
+                              obscureText: true,
+                              decoration: const InputDecoration(
+                                label: Text("Confirme a senha"),
                               ),
-                              TextFormField(
-                                controller: _nomeController,
-                                decoration: const InputDecoration(
-                                  label: Text("Nome"),
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.length < 3) {
-                                    return "Insira um nome maior.";
-                                  }
-                                  return null;
-                                },
+                              validator: (value) {
+                                if (value == null || value.length < 4) {
+                                  return "Insira uma confirmação de senha válida.";
+                                }
+                                if (value != _senhaController.text) {
+                                  return "As senhas devem ser iguais.";
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                              controller: _nomeController,
+                              decoration: const InputDecoration(
+                                label: Text("Nome"),
                               ),
-                            ],
-                          )),
-                    ),
+                              validator: (value) {
+                                if (value == null || value.length < 3) {
+                                  return "Insira um nome maior.";
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
+                        )),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
@@ -179,13 +177,36 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   _entrarUsuario({required String email, required String senha}) {
-    
     authService.entrarUsuario(email: email, senha: senha);
   }
 
-  _criarUsuario(
-      {required String email, required String senha, required String nome}) {
-    
-    authService.cadastrarUsuario(email: email, senha: senha, nome: nome);
+  _criarUsuario({
+    required String email,
+    required String senha,
+    required String nome,
+  }) {
+    try {
+      authService.cadastrarUsuario(email: email, senha: senha, nome: nome).then(
+        (String? erro) {
+          if (erro == null) {
+            showSnackBar(
+              context: context,
+              mensagem: "Conta cadastrada com sucesso.",
+              isErro: false,
+            );
+            print("Conta cadastrada com sucesso.");
+          } else {
+            showSnackBar(context: context, mensagem: erro);
+            print("Erro ao cadastrar conta: $erro");
+          }
+        },
+      ).catchError((e) {
+        print("Erro inesperado ao cadastrar conta: $e");
+        showSnackBar(context: context, mensagem: "Erro inesperado ao cadastrar conta.");
+      });
+    } catch (e) {
+      print("Erro inesperado ao chamar cadastrarUsuario: $e");
+      showSnackBar(context: context, mensagem: "Erro inesperado ao chamar cadastrarUsuario.");
+    }
   }
 }
