@@ -1,5 +1,4 @@
-// Final Main
-
+// Início Curso 3: autenticando usuários com Authentication
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_firebase_firestore_first/_core/mycolors.dart';
