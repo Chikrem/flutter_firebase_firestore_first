@@ -9,10 +9,10 @@ class AuthService {
         email: email,
         password: senha,
       );
-      print("METODO ENTRAR USUARIO");
+      //print("METODO ENTRAR USUARIO");
       return null; // Login bem-sucedido
     } on FirebaseAuthException catch (e) {
-      print("FirebaseAuthException: ${e.code}");
+      //print("FirebaseAuthException: ${e.code}");
       switch (e.code) {
         case "user-not-found":
           return "Usuário não encontrado.";
@@ -26,7 +26,7 @@ class AuthService {
           return "Erro desconhecido: ${e.message}";
       }
     } catch (e) {
-      print("Erro inesperado: ${e.toString()}");
+      //print("Erro inesperado: ${e.toString()}");
       return "Erro inesperado: ${e.toString()}";
     }
   }
@@ -37,24 +37,24 @@ class AuthService {
     required String nome,
   }) async {
     try {
-      print("Tentando criar usuário com email: $email");
+      //print("Tentando criar usuário com email: $email");
       UserCredential userCredential =
           await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: senha,
       );
 
-      print("Usuário criado com sucesso: ${userCredential.user}");
+      //print("Usuário criado com sucesso: ${userCredential.user}");
       if (userCredential.user != null) {
         await userCredential.user!.updateDisplayName(nome);
         await userCredential.user!.reload();
         User? updatedUser = _firebaseAuth.currentUser;
-        print("Nome do usuário atualizado para: ${updatedUser?.displayName}");
+        //print("Nome do usuário atualizado para: ${updatedUser?.displayName}");
       } else {
-        print("Erro: userCredential.user é null");
+        //print("Erro: userCredential.user é null");
       }
     } on FirebaseAuthException catch (e) {
-      print("FirebaseAuthException: ${e.code}");
+      //print("FirebaseAuthException: ${e.code}");
       switch (e.code) {
         case "email-already-in-use":
           return "O e-mail já está em uso.";
@@ -68,7 +68,7 @@ class AuthService {
           return "Erro desconhecido: ${e.message}";
       }
     } catch (e) {
-      print("Erro inesperado: ${e.toString()}");
+      //print("Erro inesperado: ${e.toString()}");
       return "Erro inesperado: ${e.toString()}";
     }
 
@@ -78,10 +78,10 @@ class AuthService {
   Future<String?> redefinicaoSenha({required String email}) async {
     try {
       await _firebaseAuth.sendPasswordResetEmail(email: email);
-      print("E-mail de redefinição de senha enviado para: $email");
+      //print("E-mail de redefinição de senha enviado para: $email");
       return null; // E-mail enviado com sucesso
     } on FirebaseAuthException catch (e) {
-      print("FirebaseAuthException: ${e.code}");
+      //print("FirebaseAuthException: ${e.code}");
       switch (e.code) {
         case "invalid-email":
           return "O e-mail é inválido.";
@@ -91,8 +91,22 @@ class AuthService {
           return "Erro desconhecido: ${e.message}";
       }
     } catch (e) {
-      print("Erro inesperado: ${e.toString()}");
+      //print("Erro inesperado: ${e.toString()}");
       return "Erro inesperado: ${e.toString()}";
     }
+  }
+
+  Future<String?> deslogar() async {
+    try {
+      await _firebaseAuth.signOut();
+      //print("Usuário deslogado com sucesso");
+    } catch (e) {
+      //print("Erro ao deslogar usuário: ${e.toString()}");
+    }
+    return null;
+  }
+
+  removerConta() async {
+    await _firebaseAuth.currentUser!.delete();
   }
 }
