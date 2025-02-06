@@ -106,7 +106,30 @@ class AuthService {
     return null;
   }
 
-  removerConta() async {
-    await _firebaseAuth.currentUser!.delete();
+  Future<String?> removerConta({required String senha}) async {
+    try {
+      await _firebaseAuth.signInWithEmailAndPassword(
+        email: _firebaseAuth.currentUser!.email!,
+        password: senha,
+      );
+      await _firebaseAuth.currentUser!.delete();
+      //print("Conta removida com sucesso");
+      return null; // Conta removida com sucesso
+    } on FirebaseAuthException catch (e) {
+      //print("FirebaseAuthException: ${e.code}");
+      switch (e.code) {
+        case "requires-recent-login":
+          return "A remoção da conta requer um login recente. Por favor, faça login novamente e tente novamente.";
+        case "wrong-password":
+          return "Senha incorreta.";
+        case "user-mismatch":
+          return "O usuário não corresponde.";
+        default:
+          return "Erro desconhecido: ${e.message}";
+      }
+    } catch (e) {
+      //print("Erro inesperado: ${e.toString()}");
+      return "Erro inesperado: ${e.toString()}";
+    }
   }
 }

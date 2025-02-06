@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase_firestore_first/authentication/components/senha_confirm_dialog.dart';
 import 'package:flutter_firebase_firestore_first/authentication/services/auth_service.dart';
 import 'package:flutter_firebase_firestore_first/firestore/services/listin_service.dart';
 import 'package:flutter_firebase_firestore_first/firestore_produtos/presentation/produto_screen.dart';
@@ -32,7 +33,8 @@ class _HomeScreenState extends State<HomeScreen> {
               leading: Icon(Icons.delete, color: Colors.red,),
               title: const Text("Deletar conta"),
               onTap: () {
-                AuthService().removerConta();
+                // AuthService().removerConta();
+                showSenhaConfirmacaoDialog(context: context, email: '');
               },
             ),
             ListTile(
