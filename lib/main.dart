@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_firebase_firestore_first/_core/my_colors.dart';
 import 'package:flutter_firebase_firestore_first/authentication/screens/auth_screen.dart';
 import 'package:flutter_firebase_firestore_first/firestore/presentation/home_screen.dart';
+import 'package:flutter_firebase_firestore_first/storage/storage_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -47,7 +48,8 @@ Widget build(BuildContext context) {
         ),
         useMaterial3: true,
       ),
-      home: const RoteadorTelas(),
+      // home: const RoteadorTelas(),
+      home: StorageScreen(),
     );
   }
 }
