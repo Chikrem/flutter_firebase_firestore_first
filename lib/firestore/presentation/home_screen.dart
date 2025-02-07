@@ -1,24 +1,23 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase_firestore_first/authentication/components/senha_confirm_dialog.dart';
+import 'package:flutter_firebase_firestore_first/authentication/services/auth_service.dart';
+import 'package:flutter_firebase_firestore_first/firestore/services/listin_service.dart';
 import 'package:flutter_firebase_firestore_first/firestore_produtos/presentation/produto_screen.dart';
 import 'package:uuid/uuid.dart';
 import '../models/listin.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final User user;
+  const HomeScreen({super.key, required this.user});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Listin> listListins = [
-    // Listin(id: "L001", name: "Feira de Outubro"),
-    // Listin(id: "L002", name: "Feira de Novembro"),
-  ];
-
-  FirebaseFirestore firestore = FirebaseFirestore
-      .instance; // Instância de Firestore para ser usada na classe
+  List<Listin> listListins = [];
+  ListinService listinService = ListinService();
 
   @override
   void initState() {
@@ -29,6 +28,31 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            UserAccountsDrawerHeader(
+              currentAccountPicture: Icon(Icons.person),
+              accountName: Text((widget.user.displayName != null) ? widget.user.displayName! : "Usuário"), 
+              accountEmail: Text(widget.user.email!),),
+            ListTile(
+              leading: Icon(Icons.delete, color: Colors.red,),
+              title: const Text("Deletar conta"),
+              onTap: () {
+                // AuthService().removerConta();
+                showSenhaConfirmacaoDialog(context: context, email: '');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout,),
+              title: const Text("Sair"),
+              onTap: () {
+                AuthService().deslogar();
+              },
+            )
+          ],
+        ),
+      ),
       appBar: AppBar(
         title: const Text("Listin - Feira Colaborativa"),
       ),
@@ -56,24 +80,31 @@ class _HomeScreenState extends State<HomeScreen> {
                   (index) {
                     Listin model = listListins[index];
                     return Dismissible(
-                      // Arrastar para o lado
                       key: ValueKey<Listin>(model),
                       direction: DismissDirection.endToStart,
                       background: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 8),
-                          child: const Icon(Icons.delete, color: Colors.white,)),
+                        color: Colors.red,
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: const Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                        ),
+                      ),
                       onDismissed: (direction) {
                         remove(model);
                       },
                       child: ListTile(
                         onTap: () {
-                          // Acessar
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => ProdutoScreen(listin: model)));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ProdutoScreen(listin: model),
+                            ),
+                          );
                         },
                         onLongPress: () {
-                          // Editar
                           showFormModal(model: model);
                         },
                         leading: const Icon(Icons.list_alt_rounded),
@@ -90,15 +121,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   showFormModal({Listin? model}) {
     // Labels à serem mostradas no Modal
-    String title = "Adicionar Listin";
-    String confirmationButton = "Salvar";
-    String skipButton = "Cancelar";
+    String labelTitle = "Adicionar Listin";
+    String labelConfirmationButton = "Salvar";
+    String labelSkipButton = "Cancelar";
 
     // Controlador do campo que receberá o nome do Listin
     TextEditingController nameController = TextEditingController();
 
+    // Caso esteja editando
     if (model != null) {
-      title = "Editando ${model.name}";
+      labelTitle = "Editando ${model.name}";
       nameController.text = model.name;
     }
 
@@ -120,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Formulário com Título, Campo e Botões
           child: ListView(
             children: [
-              Text(title, style: Theme.of(context).textTheme.bodyMedium),
+              Text(labelTitle, style: Theme.of(context).textTheme.bodyMedium),
               TextFormField(
                 controller: nameController,
                 decoration:
@@ -136,31 +168,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: Text(skipButton),
+                    child: Text(labelSkipButton),
                   ),
                   const SizedBox(
                     width: 16,
                   ),
                   ElevatedButton(
-                      onPressed: () {
-                        Listin listin = Listin(
-                            id: const Uuid().v1(),
-                            name: nameController
-                                .text); // Criar um tipo listin com os dados
+                    onPressed: () {
+                      // Criar um objeto Listin com as infos
+                      Listin listin = Listin(
+                        id: const Uuid().v1(),
+                        name: nameController.text,
+                      );
 
-                        if (model != null) {
-                          // Usar ID do model para edição
-                          listin.id = model.id;
-                        }
+                      // Usar id do model
+                      if (model != null) {
+                        listin.id = model.id;
+                      }
 
-                        firestore
-                            .collection("listins")
-                            .doc(listin.id)
-                            .set(listin.toMap()); // Salvar no firestore
-                        refresh(); // Att lista
-                        Navigator.pop(context);
-                      },
-                      child: Text(confirmationButton)),
+                      // Salvar no Firestore
+                      listinService.adicionarListin(listin: listin);
+
+                      // Atualizar a lista
+                      refresh();
+
+                      // Fechar o Modal
+                      Navigator.pop(context);
+                    },
+                    child: Text(labelConfirmationButton),
+                  ),
                 ],
               )
             ],
@@ -171,21 +207,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   refresh() async {
-    List<Listin> temp = [];
-
-    QuerySnapshot<Map<String, dynamic>> snapshot =
-        await firestore.collection("listins").get();
-    for (var doc in snapshot.docs) {
-      temp.add(Listin.fromMap(doc.data()));
-    }
-
+    List<Listin> listaListins = await listinService.lerListins();
     setState(() {
-      listListins = temp;
+      listListins = listaListins;
     });
   }
 
-  remove(Listin model) {
-    firestore.collection('listins').doc(model.id).delete();
+  void remove(Listin model) async {
+    await listinService.removerListin(listinId: model.id);
     refresh();
   }
 }
