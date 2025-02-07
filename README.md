@@ -24,10 +24,12 @@ Nesse projeto criaremos a base para o desenvolvimento de um Gerenciador de Lista
 - `Leitura com Firestore`: Ler manualmente informações do Banco de Dados do Firestore;
 - `Alteração com Firestore`: Alterar informações no Banco de Dados do Firestore;
 - `Remoção com Firestore`: Remover informações no Banco de Dados do Firestore;
+- `Autenticação com Authentication`: Funcionalidades de adicionar, remover ou recuperar senha de usuários cadastrados;
+
 
 ## 📁 Acesso ao projeto
 
-Você pode [acessar o código fonte do projeto](https://github.com/alura-cursos/flutter_firebase_firestore_first/tree/aula04) ou [baixá-lo](https://github.com/alura-cursos/flutter_firebase_firestore_first/archive/refs/heads/aula04.zip).
+Você pode [acessar o código fonte do projeto inicial](https://github.com/alura-cursos/flutter_firebase_firestore_first/tree/aula04) ou [baixá-lo](https://github.com/alura-cursos/flutter_firebase_firestore_first/archive/refs/heads/aula04.zip).
 
 ## 🛠️ Abrir e rodar o projeto
 
@@ -47,7 +49,6 @@ Gostou do projeto e quer conhecer mais? Você pode [acessar o curso]() que desen
 - Entender como cadastrar, ler, alterar, remover dados e ouvir alterações no Firestore usando o Flutter;
 - Criar um aplicativo funcional de lista de compras usando os conceitos aprendidos;
 - Entenda como deixar uma aplicação mais profissional com temas;
+- Entender como funciona autenticação de usuários através do Firebase Authenticator;
 
-<!-- Esse curso faz parte da [formação de Flutter da Alura](https://cursos.alura.com.br/formacao-flutter) -->
-
-*Te vejo lá!*
+<!-- Esse projeto faz parte da [formação de Flutter da Alura](https://cursos.alura.com.br/formacao-flutter) -->
